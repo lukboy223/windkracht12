@@ -2,59 +2,98 @@
 
 namespace Database\Seeders;
 
-use App\Models\Car;
-use App\Models\Contact;
-use App\Models\Lesson;
-use App\Models\Exam;
-use App\Models\Instructor;
-use App\Models\Invoice;
-use App\Models\Notification;
-use App\Models\Package;
-use App\Models\Payment;
-use App\Models\Registration;
+use App\Models\User;
 use App\Models\Role;
 use App\Models\Student;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Instructor;
+use App\Models\Registration;
+use App\Models\Lesson;
+use App\Models\Package;
+use App\Models\Car;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create 5 instructors
+        $instructors = collect();
+        for ($i = 1; $i <= 5; $i++) {
+            $user = User::factory()->create([
+                'firstname' => "Instructor{$i}",
+                'lastname' => "Lastname{$i}",
+                'birthdate' => '1980-01-01',
+                'name' => "Instructor {$i}",
+                'email' => "instructor{$i}@example.com",
+                'password' => Hash::make('password'),
+            ]);
+            Role::factory()->create([
+                'user_id' => $user->id,
+                'name' => 'Instructor',
+            ]);
+            $instructor = Instructor::factory()->create([
+                'user_id' => $user->id,
+            ]);
+            $instructors->push($instructor);
+        }
 
-        User::factory()->create([
-            'firstname' => 'john',
-            'lastname' => 'doe',
-            'birthdate' => '1900-01-01',
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => encrypt('cookie123')
-        ]);
+        // Create 5 students
+        $students = collect();
+        for ($i = 1; $i <= 5; $i++) {
+            $user = User::factory()->create([
+                'firstname' => "Student{$i}",
+                'lastname' => "Lastname{$i}",
+                'birthdate' => '2000-01-01',
+                'name' => "Student {$i}",
+                'email' => "student{$i}@example.com",
+                'password' => Hash::make('password'),
+            ]);
+            Role::factory()->create([
+                'user_id' => $user->id,
+                'name' => 'Student',
+            ]);
+            $student = Student::factory()->create([
+                'user_id' => $user->id,
+            ]);
+            $students->push($student);
+        }
 
+        // Create some packages and cars if not already present
+        $package = Package::factory()->create();
 
-        Lesson::factory(200)->create();
+        // For each student, create a registration and at least 10 lessons
+        foreach ($students as $student) {
+            $registration = Registration::factory()->create([
+                'student_id' => $student->id,
+                'package_id' => $package->id,
+            ]);
+            for ($j = 0; $j < 10; $j++) {
+                $instructor = $instructors->random();
+                Lesson::factory()->create([
+                    'registration_id' => $registration->id,
+                    'instructor_id' => $instructor->user_id,
 
-        Contact::factory(200)->create();
+                    'start_date' => fake()->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
+                    'start_time' => fake()->time(),
+                ]);
+            }
+        }
 
-        Instructor::factory(200)->create();
-
-        Invoice::factory(200)->create();
-
-        Notification::factory(200)->create();
-
-        Package::factory(200)->create();
-
-        Payment::factory(200)->create();
-
-        Registration::factory(200)->create();
-
-        Role::factory(200)->create();
-
-        Student::factory(200)->create();
+        // For each instructor, ensure they have at least 10 lessons (as instructor)
+        foreach ($instructors as $instructor) {
+            $count = Lesson::where('instructor_id', $instructor->user_id)->count();
+            for ($j = $count; $j < 10; $j++) {
+                // Assign to a random student's registration
+                $student = $students->random();
+                $registration = Registration::where('student_id', $student->id)->first();
+                Lesson::factory()->create([
+                    'registration_id' => $registration->id,
+                    'instructor_id' => $instructor->user_id,
+                    'start_date' => fake()->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
+                    'start_time' => fake()->time(),
+                ]);
+            }
+        }
     }
 }

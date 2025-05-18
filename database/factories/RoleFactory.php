@@ -18,7 +18,7 @@ class RoleFactory extends Factory
     {
         return [
             'user_id' => fake()->numberBetween(1,200),
-            'name' => fake()->randomElement(['Student', 'Instructor', 'Administrator', 'Guest'])
+            'name' => fake()->randomElement(['Student', 'Instructor'])
         ];
     }
 }
