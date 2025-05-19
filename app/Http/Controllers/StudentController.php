@@ -14,9 +14,13 @@ class StudentController extends Controller
 
     public function index()
     {
-
-        $students = Student::with('user')->get();
-
+        // Both administrators and instructors can see all students
+        if (Auth::user()->hasRole(['administrator', 'instructor'])) {
+            $students = Student::with('user')->get();
+        } else {
+            // Optionally restrict for other roles
+            $students = Student::with('user')->where('user_id', Auth::id())->get();
+        }
         return view('students.index', compact('students'));
     }
 
@@ -95,8 +99,8 @@ class StudentController extends Controller
 
     public function edit(Student $student)
     {
+        // Both administrators and instructors can edit all students
         $this->authorize('update', $student);
-        // Get users who have an active 'Student' role
         $users = User::whereHas('roles', function ($query) {
             $query->where('name', 'Student')->where('isactive', true);
         })->get();
