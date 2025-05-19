@@ -18,5 +18,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/lessons/{lesson}/cancel', [LessonController::class, 'cancel'])->name('lessons.cancel')->middleware('auth');
+Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index')->middleware('auth');
 
 require __DIR__.'/auth.php';

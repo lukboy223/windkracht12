@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         $instructors = collect();
         for ($i = 1; $i <= 5; $i++) {
             $user = User::factory()->create([
-                'firstname' => "Instructor{$i}",
-                'lastname' => "Lastname{$i}",
+                'firstname' => "John{$i}",
+                'lastname' => "Doe{$i}",
                 'birthdate' => '1980-01-01',
                 'name' => "Instructor {$i}",
                 'email' => "instructor{$i}@example.com",
@@ -42,8 +42,8 @@ class DatabaseSeeder extends Seeder
         $students = collect();
         for ($i = 1; $i <= 5; $i++) {
             $user = User::factory()->create([
-                'firstname' => "Student{$i}",
-                'lastname' => "Lastname{$i}",
+                'firstname' => "John{$i}",
+                'lastname' => "Pork{$i}",
                 'birthdate' => '2000-01-01',
                 'name' => "Student {$i}",
                 'email' => "student{$i}@example.com",

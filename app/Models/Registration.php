@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Registration extends Model
 {
     use HasFactory;
+
+
+    public function student()
+    {
+        return $this->belongsTo(\App\Models\Student::class, 'student_id');
+    }
 }

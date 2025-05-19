@@ -9,6 +9,32 @@ use Illuminate\Support\Facades\Auth;
 
 class LessonController extends Controller
 {
+    public function index()
+    {
+
+
+        $user = auth()->user();
+        $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $isStudent = (bool) $student;
+
+        if ($isStudent) {
+            $registrationIds = \App\Models\Registration::where('student_id', $student->id)->pluck('id');
+            $lessons = \App\Models\Lesson::with(['instructor.user', 'registration.student.user'])
+                ->whereIn('registration_id', $registrationIds)
+                ->orderByDesc('start_date')
+                ->orderByDesc('start_time')
+                ->get();
+        } else {
+            $lessons = \App\Models\Lesson::with(['instructor.user', 'registration.student.user'])
+                ->where('instructor_id', $user->id)
+                ->orderByDesc('start_date')
+                ->orderByDesc('start_time')
+                ->get();
+        }
+
+        return view('lessons.index', compact('lessons', 'isStudent'));
+    }
+
     public function cancel(Request $request, Lesson $lesson)
     {
         $request->validate([
