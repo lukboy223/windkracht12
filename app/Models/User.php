@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'firstname',
+        'lastname',
+        'birthdate',
     ];
 
     /**
@@ -44,5 +47,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function hasRole($roles)
+    {
+        if (is_array($roles)) {
+            return in_array($this->role, $roles);
+        }
+        return $this->role === $roles;
+    }
+    public function contact()
+    {
+        return $this->hasOne(\App\Models\Contact::class);
+    }
+
+    public function roles()
+    {
+        return $this->hasMany(\App\Models\Role::class);
     }
 }

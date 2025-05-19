@@ -140,7 +140,7 @@
             </div>
         </section>
     </main>
-    <footer class="h-[20vh] relative mt-10">
+    <footer class="h-[20vh] relative">
         <img src="/img/footer.jpg" alt=""
             class="object-center object-cover w-full h-full absolute blur-sm brightness-75">
         <div class="h-full w-full bg-[#00000075] z-10 relative grid grid-cols-2 text-white text-xl pt-20">

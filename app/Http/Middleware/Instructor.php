@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,8 +16,11 @@ class Instructor
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        // Check if the user is an instructor
-        if (!$user || !$user->hasRole('Instructor')) {
+        // Check if the user has an active Instructor role
+        if (
+            !$user ||
+            !$user->roles()->where('name', 'Instructor')->where('isactive', true)->exists()
+        ) {
             return redirect('/')->with('error', 'You do not have access to this page.');
         }
         return $next($request);
