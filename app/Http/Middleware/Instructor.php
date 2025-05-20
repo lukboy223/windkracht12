@@ -18,11 +18,12 @@ class Instructor
         $user = $request->user();
         // Check if the user has an active Instructor role
         if (
-            !$user ||
-            !$user->roles()->where('name', 'Instructor')->where('isactive', true)->exists()
+            $user->roles()->where('name', 'Instructor')->where('isactive', true)->exists() ||
+            $user->roles()->where('name', 'Administrator')->where('isactive', true)->exists()
         ) {
+            return $next($request);
+        } else {
             return redirect('/')->with('error', 'You do not have access to this page.');
         }
-        return $next($request);
     }
 }

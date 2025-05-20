@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
@@ -30,7 +30,9 @@ Route::middleware(['auth', Instructor::class])->group(function () {
 
 // Instructor dashboard and related pages, only for instructor role
 Route::middleware(['auth', Instructor::class])->group(function () {
-    Route::resource('instructor', instructorController::class);
+    // Route::resource('instructor', instructorController::class);
+    Route::get('/instructor/bsn/{id}', [\App\Http\Controllers\InstructorController::class, 'showBsnForm'])->name('instructors.bsn.form');
+    Route::post('/instructor/bsn/{id}', [\App\Http\Controllers\InstructorController::class, 'saveBsn'])->name('instructors.bsn.save');
 });
 
 require __DIR__.'/auth.php';

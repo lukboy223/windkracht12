@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id(); // Id (PK)
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // UserId (FK)
             $table->string('number'); // Number
+            $table->string('BSN')->nullable(); // BSN
             $table->boolean('isactive')->default(true); // Isactive
             $table->text('remark')->nullable(); // Remark
             $table->timestamps();

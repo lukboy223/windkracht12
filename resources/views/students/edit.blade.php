@@ -19,6 +19,18 @@
                     <label class="block text-gray-700 mb-1">Name</label>
                     <input type="text" name="user_name" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" required value="{{ old('user_name', $student->user->name ?? '') }}">
                 </div>
+                @if(Auth::user()->Roles()->where('name', 'Administrator')->exists())
+                <div>
+                    <label class="block text-gray-700 mb-1">Role</label>
+                    <select name="role" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                        @foreach($roles as $role)
+                            <option value="{{ $role }}" @if(old('role', $student->user->role->name ?? '') == $role) selected @endif>
+                                {{ ucfirst($role) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-gray-700 mb-1">Street Name</label>

@@ -18,41 +18,28 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create 3 users
-        $users = User::factory()->count(3)->create();
-
-        // Assign roles and contacts
-        foreach ($users as $index => $user) {
-            // Assign roles
-            $roleName = match ($index) {
-                0 => 'Administrator',
-                1 => 'Instructor',
-                default => 'Student',
-            };
-            Role::create([
-                'user_id' => $user->id,
-                'name' => $roleName,
-                'isactive' => true,
-            ]);
-            // Add contact
-            Contact::create([
-                'user_id' => $user->id,
-                'street_name' => 'Main Street',
-                'house_number' => (string)(100 + $index),
-                'addition' => null,
-                'postal_code' => '1234AB',
-                'place' => 'Cityville',
-                'mobile' => '061234567' . $index,
-                'isactive' => true,
-            ]);
-        }
-
-        // Create students for user 3 (student)
-        Student::create([
-            'user_id' => $users[2]->id,
-            'relation_number' => 'REL123',
+        // Create a dummy admin user
+        $adminUser = User::factory()->create([
+            'firstname' => 'Admin',
+            'lastname' => 'User',
+            'birthdate' => '1970-01-01',
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+        ]);
+        Role::factory()->create([
+            'user_id' => $adminUser->id,
+            'name' => 'Administrator',
+        ]);
+        Contact::create([
+            'user_id' => $adminUser->id,
+            'street_name' => 'Admin Street',
+            'house_number' => '1',
+            'addition' => null,
+            'postal_code' => '1234AB',
+            'place' => 'Admintown',
+            'mobile' => '0612345678',
             'isactive' => true,
-            'remark' => 'Dummy student',
         ]);
 
         // Create 5 instructors

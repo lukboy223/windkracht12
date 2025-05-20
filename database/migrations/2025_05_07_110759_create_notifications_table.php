@@ -22,7 +22,8 @@ return new class extends Migration
                 'Lesson Change', 
                 'Lesson Cancellation', 
                 'Lesson Pickup Address Change', 
-                'Lesson Goal Change'
+                'Lesson Goal Change',
+                'Account Change',
             ]); // Type Notification
             $table->dateTime('date'); // Date
             $table->boolean('isactive')->default(true); // IsActive

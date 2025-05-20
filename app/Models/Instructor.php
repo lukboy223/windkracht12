@@ -9,6 +9,12 @@ class Instructor extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'number',
+        'isactive',
+    ];
+
     public function instructor()
     {
         return $this->belongsTo(\App\Models\Instructor::class, 'instructor_id');

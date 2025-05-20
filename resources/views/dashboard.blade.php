@@ -94,9 +94,14 @@
                             <div class="text-sm text-gray-700 mb-2">
                                 <span class="font-bold">{{ $notification->type }}</span>
                             </div>
-                            <div class="text-gray-800">
-                                {{ $notification->message }}
+                            <div class="text-gray-800 mb-2">
+                                {!! $notification->message !!}
                             </div>
+                            @if(!empty($notification->link))
+                                <a href="{{ $notification->link }}" class="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" target="_blank">
+                                    Naar actie
+                                </a>
+                            @endif
                         </div>
                         @endforeach
                     </div>
