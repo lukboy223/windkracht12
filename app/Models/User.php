@@ -6,8 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserActivation;
 
-class User extends Authenticatable
+class User extends Authenticatable // implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -15,15 +17,18 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
+        'firstname',
+        'infix',
+        'lastname',
+        'birthdate',
         'name',
         'email',
         'password',
-        'firstname',
-        'lastname',
-        'birthdate',
+        'is_active',
+        'activation_token',
     ];
 
     /**
@@ -64,5 +69,13 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->hasMany(\App\Models\Role::class);
+    }
+
+    /**
+     * Send the activation email.
+     */
+    public function sendActivationEmail(string $token): void
+    {
+        Mail::to($this->email)->send(new UserActivation($this, $token));
     }
 }

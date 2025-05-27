@@ -28,6 +28,7 @@ return new class extends Migration
             $table->boolean('logged_out')->default(false);
       
             $table->boolean('is_active')->default(1);
+            $table->string('activation_token', 60)->nullable();
             $table->string('note')->nullable();
             $table->rememberToken();
             $table->timestamps();

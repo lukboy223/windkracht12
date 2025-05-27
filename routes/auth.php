@@ -16,6 +16,15 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
+    
+    Route::get('register/confirmation', [RegisteredUserController::class, 'confirmation'])
+                ->name('register.confirmation');
+                
+    Route::get('set-password/{token}', [RegisteredUserController::class, 'showSetPasswordForm'])
+                ->name('password.set');
+                
+    Route::post('set-password', [RegisteredUserController::class, 'setPassword'])
+                ->name('setPassword.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
