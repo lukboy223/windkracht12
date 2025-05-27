@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('instructor_id')->constrained()->onDelete('cascade'); // Instructor ID (FK)
              $table->date('start_date'); // Start date
             $table->time('start_time'); // Start time
-            $table->enum('lesson_status', ['Planned', 'Completed', 'Canceled']); // Lesson status
+            $table->enum('lesson_status', ['Planned', 'Completed', 'Canceled', 'planning']); // Lesson status
             $table->text('goal')->nullable(); // Goal
+            $table->string('number_of_students'); // Number of students
             $table->text('student_comment')->nullable(); // Student Comment
             $table->text('commentary_instructor')->nullable(); // CommentaryInstructor
             $table->boolean('isactive')->default(true); // IsActive

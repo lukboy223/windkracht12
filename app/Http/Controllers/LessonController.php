@@ -14,6 +14,8 @@ class LessonController extends Controller
 
 
         $user = auth()->user();
+        $instructor = \App\Models\Instructor::where('user_id', $user->id)->first();
+        // dd($instructor);
         $student = \App\Models\Student::where('user_id', $user->id)->first();
         $isStudent = (bool) $student;
 
@@ -26,7 +28,7 @@ class LessonController extends Controller
                 ->get();
         } else {
             $lessons = \App\Models\Lesson::with(['instructor.user', 'registration.student.user'])
-                ->where('instructor_id', $user->id)
+                ->where('instructor_id', $instructor->id)
                 ->orderByDesc('start_date')
                 ->orderByDesc('start_time')
                 ->get();

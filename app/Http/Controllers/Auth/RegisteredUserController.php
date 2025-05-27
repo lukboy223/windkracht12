@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
+use App\Models\Student;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -57,6 +59,16 @@ class RegisteredUserController extends Controller
             'password' => Hash::make(Str::random(20)), // Temporary random password
             'is_active' => false, // User is inactive until verified
             'activation_token' => $token,
+        ]);
+
+        Role::create([
+            'user_id' => $user->id,
+            'role' => 'Student', // Default role for new users
+        ]);
+
+        Student::create([
+            'user_id' => $user->id,
+            'relation_number' => Str::random(10), // Generate a random relation number
         ]);
 
         event(new Registered($user));

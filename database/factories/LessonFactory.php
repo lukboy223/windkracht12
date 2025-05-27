@@ -22,6 +22,7 @@ class LessonFactory extends Factory
         return [
             'registration_id' => fake()->unique()->numberBetween(1,200),
             'instructor_id' => fake()->numberBetween(1,200),
+            'number_of_students' => fake()->numberBetween(1, 2),
             'start_date' => fake()->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
             'start_time' => fake()->time(),
             'lesson_status' => fake()->randomElement(['Planned', 'Completed', 'Canceled']),

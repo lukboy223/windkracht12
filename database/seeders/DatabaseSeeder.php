@@ -105,23 +105,59 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create some packages and cars if not already present
-        $package = Package::factory()->create();
-
-        // For each student, create a registration and at least 10 lessons
-        foreach ($students as $student) {
-            $registration = Registration::factory()->create([
-                'student_id' => $student->id,
-                'package_id' => $package->id,
-            ]);
-            for ($j = 0; $j < 10; $j++) {
-                $instructor = $instructors->random();
-                Lesson::factory()->create([
-                    'registration_id' => $registration->id,
-                    'instructor_id' => $instructor->user_id,
-
-                    'start_date' => fake()->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
-                    'start_time' => fake()->time(),
+        // Don't create packages as they are now defined in the migration
+        $packages = Package::all(); // Get all predefined packages
+        
+        // Create some bookings and then link them to registrations
+        $bookings = [];
+        foreach ($students as $index => $student) {
+            // Create 2 bookings per student
+            for ($i = 0; $i < 2; $i++) {
+                $package = $packages->random();
+                $booking = \App\Models\Booking::create([
+                    'user_id' => $student->user_id,
+                    'package_id' => $package->id,
+                    'booking_date' => fake()->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
+                    'booking_time' => fake()->randomElement(['morning', 'afternoon']),
+                    'participants' => fake()->numberBetween(1, 2),
+                    'partner_name' => fake()->boolean(30) ? fake()->name() : null,
+                    'notes' => fake()->boolean(50) ? fake()->sentence() : null,
+                    'status' => fake()->randomElement(['pending', 'confirmed', 'completed', 'canceled']),
+                    'isactive' => true,
                 ]);
+                $bookings[] = $booking;
+            }
+        }
+
+        // For each student, create a registration linked to bookings
+        foreach ($students as $student) {
+            // Get a random booking belonging to this student
+            $booking = \App\Models\Booking::where('user_id', $student->user_id)->first();
+            
+            if ($booking) {
+                $registration = Registration::factory()->create([
+                    'student_id' => $student->id,
+                    'package_id' => $booking->package_id,
+                    'booking_id' => $booking->id,
+                    'start_date' => $booking->booking_date,
+                ]);
+                
+                // Create lessons only for confirmed bookings
+                if ($booking->status === 'confirmed') {
+                    for ($j = 0; $j < 5; $j++) {
+                        $instructor = $instructors->random();
+                        Lesson::factory()->create([
+                            'registration_id' => $registration->id,
+                            'lesson_status' => fake()->randomElement(['Planned', 'Completed', 'Canceled']),
+                            'number_of_students' => $booking->participants,
+                            'instructor_id' => $instructor->user_id,
+                            'start_date' => fake()->dateTimeBetween($booking->booking_date, '+2 weeks')->format('Y-m-d'),
+                            'start_time' => $booking->booking_time === 'morning' ? 
+                                fake()->dateTimeBetween('09:00', '12:00')->format('H:i:s') : 
+                                fake()->dateTimeBetween('13:00', '16:00')->format('H:i:s'),
+                        ]);
+                    }
+                }
             }
         }
 

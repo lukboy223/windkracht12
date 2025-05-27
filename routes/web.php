@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\instructorController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Middleware\Instructor;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,19 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/lessons/{lesson}/cancel', [LessonController::class, 'cancel'])->name('lessons.cancel')->middleware('auth');
 Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index')->middleware('auth');
+
+// Booking routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/create/{id}', [BookingController::class, 'create'])->name('bookings.create');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+});
+
+// Payment routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+});
 
 // Students CRUD, only for admin and instructor roles
 Route::middleware(['auth', Instructor::class])->group(function () {

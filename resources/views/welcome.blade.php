@@ -86,12 +86,12 @@
                         <p class="w-full text-center text-2xl mt-4 font-bold text-[#1B4965]">€175,-</p>
                     </div>
                     <div class="my-4 flex justify-center">
-                        <a href=""
+                        <a href="{{ route('bookings.create', 'private') }}"
                             class="bg-[#95E794] hover:bg-[#6fcf97] transition-colors p-2 px-6 text-xl rounded-full shadow font-semibold">boeken</a>
                     </div>
                 </div>
                 <div class="bg-[#FFFCEA] rounded-2xl shadow-lg h-min transition-transform hover:scale-105">
-                    <h4 class="w-full text-2xl text-center my-4 font-semibold text-[#1B4965]">1 dagdeel <br> Losse Duo
+                    <h4 class="w-full text-2xl text-center my-4 font-semibold text-[#1B4965]">1 dagdeel <br>Losse Duo
                         Kiteles <br>3.5 uur</h4>
                     <div class="bg-[#FFF8D0] w-full p-4 rounded-b-xl">
                         <ul class="list-disc m-auto w-2/3 text-xl text-[#22223b]">
@@ -101,7 +101,7 @@
                         <p class="w-full text-center text-2xl mt-4 font-bold text-[#1B4965]">€135,- pp</p>
                     </div>
                     <div class="my-4 flex justify-center">
-                        <a href=""
+                        <a href="{{ route('bookings.create', 'duo-single') }}"
                             class="bg-[#95E794] hover:bg-[#6fcf97] transition-colors p-2 px-6 text-xl rounded-full shadow font-semibold">boeken</a>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                         <p class="w-full text-center text-2xl mt-4 font-bold text-[#1B4965]">€375,- pp</p>
                     </div>
                     <div class="my-4 flex justify-center">
-                        <a href=""
+                        <a href="{{ route('bookings.create', 'duo-three') }}"
                             class="bg-[#95E794] hover:bg-[#6fcf97] transition-colors p-2 px-6 text-xl rounded-full shadow font-semibold">boeken</a>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                         <p class="w-full text-center text-2xl mt-4 font-bold text-[#1B4965]">€675,- pp</p>
                     </div>
                     <div class="my-4 flex justify-center">
-                        <a href=""
+                        <a href="{{ route('bookings.create', 'duo-five') }}"
                             class="bg-[#95E794] hover:bg-[#6fcf97] transition-colors p-2 px-6 text-xl rounded-full shadow font-semibold">boeken</a>
                     </div>
                 </div>

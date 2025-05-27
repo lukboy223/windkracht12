@@ -24,6 +24,7 @@
                                     Student
                                     @endif
                                 </th>
+                                <th class="py-2 px-4">Pakket</th>
                                 <th class="py-2 px-4">Opmerking</th>
                                 <th class="py-2 px-4">Actie</th>
                             </tr>
@@ -47,6 +48,22 @@
                                     @else
                                     {{-- Show student name --}}
                                     {{ $lesson->registration->student->user->name ?? '-' }}
+                                    @endif
+                                </td>
+                                <td class="py-2 px-4">
+                                    @if($lesson->registration && $lesson->registration->package_id)
+                                        @php
+                                            $package = \App\Models\Package::find($lesson->registration->package_id);
+                                        @endphp
+                                        @if($package)
+                                            <span class="font-medium">{{ $package->name }}</span>
+                                            <br>
+                                            <span class="text-xs text-gray-500">{{ $package->duration }}</span>
+                                        @else
+                                            -
+                                        @endif
+                                    @else
+                                        -
                                     @endif
                                 </td>
                                 <td class="py-2 px-4">

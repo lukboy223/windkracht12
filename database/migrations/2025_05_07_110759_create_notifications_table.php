@@ -17,14 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // UserId (FK)
             $table->enum('target_audience', ['Student', 'Instructor', 'Both']); // Target audience
             $table->text('message'); // Message
-            $table->enum('type', [
-                'Sick', 
-                'Lesson Change', 
-                'Lesson Cancellation', 
-                'Lesson Pickup Address Change', 
-                'Lesson Goal Change',
-                'Account Change',
-            ]); // Type Notification
+            $table->string('type'); // Type Notification
             $table->dateTime('date'); // Date
             $table->boolean('isactive')->default(true); // IsActive
             $table->text('remark')->nullable(); // Remark
