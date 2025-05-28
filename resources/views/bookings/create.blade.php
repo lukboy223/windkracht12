@@ -24,6 +24,24 @@
                         @csrf
                         <input type="hidden" name="package_id" value="{{ $id }}">
                         
+                        @if(strpos($id, 'duo-three') !== false || strpos($id, 'duo-five') !== false)
+                            <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <h4 class="font-medium text-blue-800 mb-2">
+                                    <svg class="inline-block w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Meerdere lessen plannen
+                                </h4>
+                                <p class="text-sm text-blue-700 mb-2">
+                                    Dit pakket bevat {{ strpos($id, 'duo-three') !== false ? '3' : '5' }} lessen. 
+                                    Na het boeken van de eerste les kun je de volgende lessen plannen in overleg met je instructeur.
+                                </p>
+                                <p class="text-sm text-blue-700">
+                                    De eerste les wordt nu gepland. De overige lessen worden later ingepland.
+                                </p>
+                            </div>
+                        @endif
+                        
                         <div class="mb-4">
                             <x-input-label for="date" :value="__('Gewenste datum')" />
                             <x-text-input id="date" class="block mt-1 w-full" type="date" name="date" :value="old('date')" required />

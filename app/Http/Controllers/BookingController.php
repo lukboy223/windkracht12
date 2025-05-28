@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification; // Import the Notification model
+use Carbon\Carbon;
 
 use function Illuminate\Log\log;
 
@@ -73,6 +74,20 @@ class BookingController extends Controller
             $registration->package_id = $validated['package_id'];
             $registration->booking_id = $booking->id;
             $registration->start_date = $validated['date'];
+            
+            // Set the end date for multi-lesson packages
+            if (strpos($validated['package_id'], 'duo-three') !== false) {
+                // For 3-lesson packages, set end date to 6 weeks from start
+                $registration->end_date = Carbon::parse($validated['date'])->addWeeks(6);
+                $registration->remaining_lessons = 3;
+            } elseif (strpos($validated['package_id'], 'duo-five') !== false) {
+                // For 5-lesson packages, set end date to 10 weeks from start
+                $registration->end_date = Carbon::parse($validated['date'])->addWeeks(10);
+                $registration->remaining_lessons = 5;
+            } else {
+                $registration->remaining_lessons = 1;
+            }
+            
             $registration->isactive = true;
             $registration->save();
 
@@ -103,20 +118,19 @@ class BookingController extends Controller
                 $instructors->random();
 
             // Create the lesson in the lessons table
+            // Only create the first lesson now for multi-lesson packages
             $lesson = new Lesson();
             $lesson->registration_id = $registration->id;
-            
-            // Check the Lesson model to see which ID format is expected
-            // Use dd() to debug the expected format for your database
-            // dd(Lesson::first()); // Uncomment to check the format
-            
-            // Typically instructor_id in lessons refers to instructor.id
             $lesson->instructor_id = $availableInstructor->id;
             $lesson->start_date = $validated['date'];
             $lesson->start_time = $validated['time'] === 'morning' ? '09:00:00' : '13:00:00';
-            $lesson->lesson_status = 'planning';
+            $lesson->lesson_status = 'Planned';
             $lesson->number_of_students = $validated['participants'];
             $lesson->save();
+            
+            // Decrement the remaining lessons count
+            $registration->remaining_lessons -= 1;
+            $registration->save();
             
             // Create a payment notification for the user
             Notification::create([

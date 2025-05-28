@@ -50,4 +50,10 @@ Route::middleware(['auth', Instructor::class])->group(function () {
     Route::post('/instructor/bsn/{id}', [\App\Http\Controllers\InstructorController::class, 'saveBsn'])->name('instructors.bsn.save');
 });
 
+// Lesson routes for instructors
+Route::middleware(['auth'])->group(function () {
+    Route::get('/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
+});
+
 require __DIR__.'/auth.php';

@@ -20,11 +20,11 @@ Route::middleware('guest')->group(function () {
     Route::get('register/confirmation', [RegisteredUserController::class, 'confirmation'])
                 ->name('register.confirmation');
                 
-    Route::get('set-password/{token}', [RegisteredUserController::class, 'showSetPasswordForm'])
-                ->name('password.set');
+    Route::get('register/complete/{token}', [RegisteredUserController::class, 'showCompleteForm'])
+                ->name('registration.complete.form');
                 
-    Route::post('set-password', [RegisteredUserController::class, 'setPassword'])
-                ->name('setPassword.store');
+    Route::post('register/complete', [RegisteredUserController::class, 'completeRegistration'])
+                ->name('registration.complete');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

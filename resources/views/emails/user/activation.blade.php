@@ -3,9 +3,9 @@
 
 Bedankt voor je registratie!
 
-Klik op de onderstaande knop om je account te activeren en een wachtwoord in te stellen:
+Klik op de onderstaande knop om je account te activeren en je registratie te voltooien:
 
-@component('mail::button', ['url' => $url])
+@component('mail::button', ['url' => route('registration.complete.form', ['token' => $token, 'email' => $user->email])])
 Activeer Account
 @endcomponent
 

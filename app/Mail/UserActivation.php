@@ -25,7 +25,7 @@ class UserActivation extends Mailable
     {
         return $this->subject('Activeer je account')
             ->markdown('emails.user.activation', [
-                'url' => route('password.set', $this->token),
+                'url' => route('registration.complete.form', ['token' => $this->token, 'email' => $this->user->email]),
             ]);
     }
 }
