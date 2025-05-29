@@ -16,7 +16,9 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'firstname' => ['required', 'string', 'max:255'],
+            'infix' => ['nullable', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -25,6 +27,26 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'birthdate' => ['required', 'date'],
+            'street_name' => ['nullable', 'string', 'max:255'],
+            'house_number' => ['nullable', 'string', 'max:10'],
+            'addition' => ['nullable', 'string', 'max:10'],
+            'postal_code' => [
+                'nullable',
+                'string',
+                'min:6',
+                'max:7',
+                'regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/', // Dutch postal code format
+            ],
+            'place' => ['nullable', 'string', 'max:255'],
+            'mobile' => ['nullable', 'string', 'max:20'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'postal_code.regex' => 'The postal code must be in the format 1234 AB.',
         ];
     }
 }

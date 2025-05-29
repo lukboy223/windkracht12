@@ -2,14 +2,7 @@
     <div class="max-w-5xl mx-auto py-8">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Instructeurs</h1>
-            <a href="{{ route('admin.instructors.create') }}"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Nieuwe Instructeur
-            </a>
+            
         </div>
 
         @if(session('success'))
@@ -25,7 +18,7 @@
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Naam</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Telefoonnummer</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nummer</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acties</th>
                     </tr>
                 </thead>
@@ -39,17 +32,8 @@
                         </td>
                         <td class="px-4 py-2">{{ $instructor->user->email }}</td>
                         <td class="px-4 py-2">{{ $instructor->user->contact->mobile ?? 'Niet opgegeven' }}</td>
-                        <td class="px-4 py-2">
-                            @if($instructor->user->is_active)
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Actief
-                                </span>
-                            @else
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    Inactief
-                                </span>
-                            @endif
-                        </td>
+                        <td class="px-4 py-2">{{ $instructor->number }}</td>
+                       
                         <td class="px-4 py-2 flex gap-2">
                             <a href="{{ route('admin.instructors.edit', $instructor) }}"
                                 class="inline-flex items-center px-3 py-1 bg-amber-600 text-white rounded hover:bg-amber-700 transition text-sm"
@@ -107,7 +91,7 @@
                         showCancelButton: true,
                         confirmButtonColor: '#dc2626', // Tailwind red-600
                         cancelButtonColor: '#6b7280', // Tailwind gray-500
-                        confirmButtonText: 'Ja, deactiveren!',
+                        confirmButtonText: 'Ja, verwijder!',
                         cancelButtonText: 'Annuleren',
                         customClass: {
                             popup: 'rounded-lg'
