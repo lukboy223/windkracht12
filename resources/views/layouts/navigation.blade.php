@@ -28,6 +28,13 @@
                     </x-nav-link>
                 </div>
                 @endif
+                @if(auth()->user()->roles()->where('name', 'Administrator')->where('isactive', true)->exists())
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('admin.instructors.index')" :active="request()->routeIs('admin.instructors.*')">
+                        {{ __('Instructeurs beheer') }}
+                    </x-nav-link>
+                </div>
+                @endif
 
             </div>
 

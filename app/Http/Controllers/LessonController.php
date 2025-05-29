@@ -44,20 +44,65 @@ class LessonController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
-        // Update lesson status
-        $lesson->lesson_status = 'Canceled';
-        $lesson->save();
+        try {
+            \DB::beginTransaction();
+            
+            // Update lesson status
+            $lesson->lesson_status = 'Canceled';
+            $lesson->save();
 
-        // Create notification for the instructor and/or student
-        Notification::create([
-            'user_id' => $lesson->instructor_id, // or target student, depending on your logic
-            'target_audience' => 'Both',
-            'message' => 'Les op ' . $lesson->start_date . ' om ' . $lesson->start_time . ' is geannuleerd. Reden: ' . $request->reason,
-            'type' => 'Lesson Cancellation',
-            'date' => now(),
-        ]);
+            // Get the instructor and student users
+            $instructor = $lesson->instructor->user;
+            $student = $lesson->registration->student->user;
 
-        return redirect()->back()->with('success', 'Les geannuleerd en notificatie verstuurd.');
+            // Send email to the instructor
+            \Mail::to($instructor->email)->send(
+                new \App\Mail\LessonCancellation(
+                    $lesson, 
+                    $instructor, 
+                    $request->reason,
+                    true // isInstructor flag
+                )
+            );
+
+            // Send email to the student
+            \Mail::to($student->email)->send(
+                new \App\Mail\LessonCancellation(
+                    $lesson, 
+                    $student, 
+                    $request->reason,
+                    false // isInstructor flag
+                )
+            );
+
+            // Create notification for the instructor and student
+            Notification::create([
+                'user_id' => $instructor->id,
+                'target_audience' => 'Instructor',
+                'message' => 'Les op ' . $lesson->start_date . ' om ' . $lesson->start_time . ' is geannuleerd. Reden: ' . $request->reason,
+                'type' => 'Lesson Cancellation',
+                'date' => now(),
+                'isactive' => true,
+            ]);
+
+            Notification::create([
+                'user_id' => $student->id,
+                'target_audience' => 'Student',
+                'message' => 'Les op ' . $lesson->start_date . ' om ' . $lesson->start_time . ' is geannuleerd. Reden: ' . $request->reason,
+                'type' => 'Lesson Cancellation',
+                'date' => now(),
+                'isactive' => true,
+            ]);
+            
+            \DB::commit();
+
+            return redirect()->back()->with('success', 'Les geannuleerd en betrokkenen geïnformeerd.');
+            
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error canceling lesson: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Er is iets misgegaan bij het annuleren van de les.');
+        }
     }
     
     public function create()

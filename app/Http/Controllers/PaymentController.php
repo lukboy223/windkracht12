@@ -73,6 +73,13 @@ class PaymentController extends Controller
                     $lesson->lesson_status = 'Planned';
                     $lesson->save();
                 }
+                
+                // Send payment confirmation email with lesson details
+                $package = \App\Models\Package::findOrFail($booking->package_id);
+                $firstLesson = $lessons->first(); // Get the first lesson to include in the email
+                if ($firstLesson) {
+                    \Mail::to($request->user()->email)->send(new \App\Mail\BookingPaymentConfirmation($booking, $package, $firstLesson));
+                }
             }
             
             // Delete any payment reminder notifications for this booking

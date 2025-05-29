@@ -1,0 +1,69 @@
+/* Base */
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #ffffff;
+    color: #333333;
+    height: 100%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+/* Primary Color - Matches website blue */
+.button-primary {
+    background-color: #1B4965 !important;
+    border-color: #1B4965 !important;
+}
+
+.button-primary:hover {
+    background-color: #1a3c52 !important;
+    border-color: #1a3c52 !important;
+}
+
+/* Secondary colors */
+a {
+    color: #1B4965;
+}
+
+.header {
+    background-color: #CAE9FF;
+    padding: 25px 0;
+    text-align: center;
+}
+
+.header a {
+    color: #1B4965;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Layout */
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #F8FAFC;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Rest of the default CSS... */

@@ -145,6 +145,11 @@ class BookingController extends Controller
                 'isactive' => true,
             ]);
             
+            // Send payment reminder email
+            $package = Package::findOrFail($validated['package_id']);
+            $amount = $this->calculateAmount($validated['package_id'], $validated['participants']);
+            \Mail::to(Auth::user()->email)->send(new \App\Mail\BookingPaymentReminder($booking, $package, $amount));
+            
             DB::commit();
             
             // Instead of redirecting to payment form directly, show success message with link to payment

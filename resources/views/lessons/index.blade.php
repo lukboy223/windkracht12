@@ -94,26 +94,58 @@
                                     @endif
 
                                     <!-- Cancel Modal -->
-                                    <div x-data="{ open: false }" x-on:open-cancel-modal-{{ $lesson->id }}.window="open
-                                        = true"
+                                    <div x-data="{ 
+                                            open: false,
+                                            selectedReason: '',
+                                            customReason: '',
+                                            get finalReason() {
+                                                return this.selectedReason === 'other' ? this.customReason : this.selectedReason;
+                                            }
+                                        }" 
+                                        x-on:open-cancel-modal-{{ $lesson->id }}.window="open = true"
                                         x-show="open"
                                         style="display: none;"
-                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black
-                                        bg-opacity-40"
-                                        >
-                                        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                                        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md" @click.outside="open = false">
                                             <h2 class="text-xl font-bold mb-4">Les annuleren</h2>
-                                            <form method="POST" action="{{ route('lessons.cancel', $lesson->id) }}">
+                                            <form method="POST" action="{{ route('lessons.cancel', $lesson->id) }}" x-on:submit="$el.querySelector('input[name=reason]').value = finalReason">
                                                 @csrf
-                                                <label class="block mb-2 font-semibold">Reden voor annulering:</label>
-                                                <textarea name="reason" required
-                                                    class="w-full border rounded p-2 mb-4"></textarea>
+                                                <input type="hidden" name="reason" :value="finalReason">
+                                                
+                                                <div class="mb-4">
+                                                    <label class="block mb-2 font-semibold">Reden voor annulering:</label>
+                                                    <div class="space-y-2 mb-3">
+                                                        <div class="flex items-center">
+                                                            <input type="radio" id="reason-sick-{{ $lesson->id }}" name="reason-option" value="Ziek/niet beschikbaar" 
+                                                                x-model="selectedReason" class="mr-2">
+                                                            <label for="reason-sick-{{ $lesson->id }}" class="cursor-pointer">Ziek/niet beschikbaar</label>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <input type="radio" id="reason-weather-{{ $lesson->id }}" name="reason-option" value="Slechte weersomstandigheden" 
+                                                                x-model="selectedReason" class="mr-2">
+                                                            <label for="reason-weather-{{ $lesson->id }}" class="cursor-pointer">Slechte weersomstandigheden</label>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <input type="radio" id="reason-other-{{ $lesson->id }}" name="reason-option" value="other" 
+                                                                x-model="selectedReason" class="mr-2">
+                                                            <label for="reason-other-{{ $lesson->id }}" class="cursor-pointer">Andere reden</label>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div x-show="selectedReason === 'other'" x-transition>
+                                                        <textarea x-model="customReason" class="w-full border rounded p-2" placeholder="Vul hier uw reden in..."></textarea>
+                                                    </div>
+                                                </div>
+                                                
                                                 <div class="flex justify-end gap-2">
                                                     <button type="button" class="px-4 py-2 rounded bg-gray-200"
                                                         x-on:click="open = false">Sluiten</button>
                                                     <button type="submit"
-                                                        class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Annuleer
-                                                        les</button>
+                                                        class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                                                        :disabled="!selectedReason || (selectedReason === 'other' && !customReason)"
+                                                        :class="{'opacity-50 cursor-not-allowed': !selectedReason || (selectedReason === 'other' && !customReason)}">
+                                                        Annuleer les
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>

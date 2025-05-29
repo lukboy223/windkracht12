@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\instructorController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Middleware\AdminAccess;
 use App\Http\Middleware\Instructor;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,11 @@ Route::middleware(['auth', Instructor::class])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
     Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
+});
+
+// Admin routes for instructor management
+Route::middleware(['auth', AdminAccess::class])->name('admin.')->prefix('admin')->group(function () {
+    Route::resource('instructors', \App\Http\Controllers\Admin\InstructorController::class);
 });
 
 require __DIR__.'/auth.php';

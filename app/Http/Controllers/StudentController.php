@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; // Add this line
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -140,10 +141,17 @@ class StudentController extends Controller
             DB::beginTransaction();
             $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',
+                'firstname' => 'required|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'infix' => 'nullable|string|max:255',
+                'email' => [
+                    'required', 
+                    'email',
+                    Rule::unique('users')->ignore($student->user_id),
+                ],
                 'relation_number' => 'required|string|max:255',
                 'isactive' => 'boolean',
                 'remark' => 'nullable|string',
-                'user_name' => 'required|string|max:255',
                 // Contact fields
                 'contact_street_name' => 'nullable|string|max:255',
                 'contact_house_number' => 'nullable|string|max:255',
@@ -152,17 +160,30 @@ class StudentController extends Controller
                 'contact_place' => 'nullable|string|max:255',
                 'contact_mobile' => 'nullable|string|max:255',
             ]);
+            
             $student->update([
-                'user_id' => $validated['user_id'],
                 'relation_number' => $validated['relation_number'],
                 'isactive' => $validated['isactive'],
                 'remark' => $validated['remark'],
             ]);
+            
             // Update related user
             $user = $student->user;
             if ($user) {
-                $user->name = $validated['user_name'];
+                // Build full name from components
+                $name = $validated['firstname'];
+                if (!empty($validated['infix'])) {
+                    $name .= ' ' . $validated['infix'];
+                }
+                $name .= ' ' . $validated['lastname'];
+                
+                $user->firstname = $validated['firstname'];
+                $user->infix = $validated['infix'];
+                $user->lastname = $validated['lastname'];
+                $user->name = $name;
+                $user->email = $validated['email'];
                 $user->save();
+                
                 // Update role if admin and role is present in request
                 if (
                     $request->has('role') &&
