@@ -24,7 +24,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-
+                    @if($lessons !== 'admin')
                     <h3 class="mt-6 mb-2 text-lg font-bold">Jouw lessen deze week</h3>
                     @if(isset($lessons) && $lessons->count())
                     <div class="grid md:grid-cols-2 gap-6">
@@ -76,10 +76,11 @@
                         </div>
                         @endforeach
                     </div>
+
                     @else
                     <p class="text-gray-500">Je hebt deze week geen lessen gepland.</p>
                     @endif
-
+                    @endif
                     <h3 class="mt-10 mb-2 text-lg font-bold">Jouw notificaties</h3>
                     @if(isset($notifications) && $notifications->count())
                     <div class="grid md:grid-cols-2 gap-6">
@@ -95,9 +96,11 @@
                                 {!! $notification->message !!}
                             </div>
                             @if(!empty($notification->link))
-                                <a href="{{ $notification->link }}" class="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition underline" target="_blank">
-                                    Naar actie
-                                </a>
+                            <a href="{{ $notification->link }}"
+                                class="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition underline"
+                                target="_blank">
+                                Naar actie
+                            </a>
                             @endif
                         </div>
                         @endforeach

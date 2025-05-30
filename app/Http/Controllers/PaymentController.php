@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -74,11 +75,11 @@ class PaymentController extends Controller
                     $lesson->save();
                 }
                 
-                // Send payment confirmation email with lesson details
+                // Queue payment confirmation email instead of sending immediately
                 $package = \App\Models\Package::findOrFail($booking->package_id);
                 $firstLesson = $lessons->first(); // Get the first lesson to include in the email
                 if ($firstLesson) {
-                    \Mail::to($request->user()->email)->send(new \App\Mail\BookingPaymentConfirmation($booking, $package, $firstLesson));
+                    \Mail::to($request->user()->email)->queue(new \App\Mail\BookingPaymentConfirmation($booking, $package, $firstLesson));
                 }
             }
             

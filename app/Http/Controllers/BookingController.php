@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification; // Import the Notification model
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 use function Illuminate\Log\log;
 
@@ -147,10 +148,10 @@ class BookingController extends Controller
                 'isactive' => true,
             ]);
             
-            // Send payment reminder email
+            // Queue payment reminder email instead of sending it immediately
             $package = Package::findOrFail($validated['package_id']);
             $amount = $this->calculateAmount($validated['package_id'], $validated['participants']);
-            \Mail::to(Auth::user()->email)->send(new \App\Mail\BookingPaymentReminder($booking, $package, $amount));
+            Mail::to(Auth::user()->email)->queue(new \App\Mail\BookingPaymentReminder($booking, $package, $amount));
             
             DB::commit();
             

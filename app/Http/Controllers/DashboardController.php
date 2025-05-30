@@ -24,6 +24,7 @@ class DashboardController extends Controller
 
         // Check if user is a student
         $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $instructor = \App\Models\Instructor::where('user_id', $user->id)->first();
 
         if ($student) {
             // Student: lessons via registrations
@@ -34,14 +35,17 @@ class DashboardController extends Controller
                 ->orderBy('start_date')
                 ->orderBy('start_time')
                 ->get();
-        } else {
+        } elseif ($instructor) {
             // Instructor: lessons where instructor_id matches user
-            $lessons = \App\Models\Lesson::where('instructor_id', $user->id)
+            $lessons = \App\Models\Lesson::where('instructor_id', $user->instructor->id)
                 ->where('start_date', '>=', $startOfWeek->toDateString())
                 ->where('start_date', '<=', $endOfWeek->toDateString())
                 ->orderBy('start_date')
                 ->orderBy('start_time')
                 ->get();
+        }else {
+            // Admin: all lessons
+            $lessons = 'admin';
         }
         $notifications = \App\Models\Notification::where('user_id', auth()->id())
             ->orderBy('date', 'desc')

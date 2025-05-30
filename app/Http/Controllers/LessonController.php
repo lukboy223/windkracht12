@@ -7,10 +7,12 @@ use App\Models\Lesson;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class LessonController extends Controller
 {
-    public function index(Request $request)
+        public function index(Request $request)
     {
         $user = auth()->user();
         $instructor = \App\Models\Instructor::where('user_id', $user->id)->first();
@@ -92,7 +94,7 @@ class LessonController extends Controller
         ]);
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
             
             // Update lesson status
             $lesson->lesson_status = 'Canceled';
@@ -102,8 +104,8 @@ class LessonController extends Controller
             $instructor = $lesson->instructor->user;
             $student = $lesson->registration->student->user;
 
-            // Send email to the instructor
-            \Mail::to($instructor->email)->send(
+            // Queue emails instead of sending them immediately
+            Mail::to($instructor->email)->queue(
                 new \App\Mail\LessonCancellation(
                     $lesson, 
                     $instructor, 
@@ -112,8 +114,7 @@ class LessonController extends Controller
                 )
             );
 
-            // Send email to the student
-            \Mail::to($student->email)->send(
+            Mail::to($student->email)->queue(
                 new \App\Mail\LessonCancellation(
                     $lesson, 
                     $student, 
@@ -141,13 +142,13 @@ class LessonController extends Controller
                 'isactive' => true,
             ]);
             
-            \DB::commit();
+            DB::commit();
 
             return redirect()->back()->with('success', 'Les geannuleerd en betrokkenen geïnformeerd.');
             
         } catch (\Exception $e) {
-            \DB::rollBack();
-            \Log::error('Error canceling lesson: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Error canceling lesson: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Er is iets misgegaan bij het annuleren van de les.');
         }
     }
@@ -236,7 +237,7 @@ class LessonController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('Fout bij het inplannen van een les: ' . $e->getMessage(), [
+            Log::error('Fout bij het inplannen van een les: ' . $e->getMessage(), [
                 'user_id' => $user->id,
                 'data' => $validated,
             ]);
