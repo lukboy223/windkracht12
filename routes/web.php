@@ -60,6 +60,13 @@ Route::middleware(['auth'])->group(function () {
 // Admin routes for instructor management
 Route::middleware(['auth', AdminAccess::class])->name('admin.')->prefix('admin')->group(function () {
     Route::resource('instructors', \App\Http\Controllers\Admin\InstructorController::class);
+    // Make sure this route is properly defined
+    Route::get('instructors/{instructor}/lessons', [\App\Http\Controllers\Admin\InstructorController::class, 'getLessons']);
+});
+
+// Public instructor view (for students)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/instructors/{instructor}', [App\Http\Controllers\InstructorViewController::class, 'show'])->name('instructors.show');
 });
 
 require __DIR__.'/auth.php';

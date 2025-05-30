@@ -14,6 +14,7 @@ class Booking extends Model
         'package_id',
         'booking_date',
         'booking_time',
+        'location',
         'participants',
         'partner_name',
         'notes',

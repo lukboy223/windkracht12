@@ -12,7 +12,7 @@ Er is een wijziging in de geplande kitesurfles.
 <br><br>
 Datum: {{ \Carbon\Carbon::parse($lesson->start_date)->format('d-m-Y') }}<br>
 Tijd: {{ \Carbon\Carbon::parse($lesson->start_time)->format('H:i') }}<br>
-Locatie: {{ $lesson->location ?: 'Main Beach' }}<br>
+Locatie: {{ $lesson->registration->booking->location ?: 'Main Beach' }}<br>
 <br>
 Reden voor annulering:<br>
 {{ $reason }}

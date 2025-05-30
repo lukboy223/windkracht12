@@ -134,6 +134,109 @@
                     </dl>
                 </div>
             </div>
+            
+            <!-- Instructor Lessons -->
+            <div class="p-6 border-t">
+                <div x-data="{ 
+                    activeTab: 'all',
+                    lessons: [],
+                    loading: false,
+                    fetchLessons(period = 'all') {
+                        this.loading = true;
+                        this.activeTab = period;
+                        fetch(`/admin/instructors/{{ $instructor->id }}/lessons?period=${period}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Lessons data:', data); // Debug output
+                                this.lessons = data;
+                                this.loading = false;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching lessons:', error);
+                                this.loading = false;
+                            });
+                    }
+                }" x-init="fetchLessons()">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-700">Lessen van deze instructeur</h2>
+                        <div class="flex space-x-2">
+                            <button @click="fetchLessons('all')" 
+                                :class="activeTab === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" 
+                                class="px-3 py-1 text-sm rounded transition">
+                                Alle lessen
+                            </button>
+                            <button @click="fetchLessons('today')" 
+                                :class="activeTab === 'today' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" 
+                                class="px-3 py-1 text-sm rounded transition">
+                                Vandaag
+                            </button>
+                            <button @click="fetchLessons('week')" 
+                                :class="activeTab === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" 
+                                class="px-3 py-1 text-sm rounded transition">
+                                Deze week
+                            </button>
+                            <button @click="fetchLessons('month')" 
+                                :class="activeTab === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" 
+                                class="px-3 py-1 text-sm rounded transition">
+                                Deze maand
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading indicator -->
+                    <div x-show="loading" class="flex justify-center py-8">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Debug information -->
+                    <div x-show="!loading && lessons.length === 0" class="p-3 bg-yellow-100 mb-4 rounded">
+                        <p>Geen lessen gevonden. </p>
+                    </div>
+
+                    <!-- Lessons table -->
+                    <div class="overflow-x-auto" x-show="!loading && lessons.length > 0">
+                        <table class="min-w-full border border-gray-200 rounded">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase">Datum</th>
+                                    <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase">Tijd</th>
+                                    <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                    <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase">Locatie</th>
+                                    <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="lessons.length === 0">
+                                    <tr>
+                                        <td colspan="5" class="py-6 text-center text-gray-500">
+                                            Geen lessen gevonden voor deze periode.
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="lesson in lessons" :key="lesson.id">
+                                    <tr class="border-t hover:bg-gray-50">
+                                        <td class="py-2 px-4" x-text="new Date(lesson.start_date).toLocaleDateString('nl-NL')"></td>
+                                        <td class="py-2 px-4" x-text="lesson.start_time ? lesson.start_time.substring(0, 5) : '-'"></td>
+                                        <td class="py-2 px-4" x-text="lesson.registration && lesson.registration.student && lesson.registration.student.user ? lesson.registration.student.user.name : '-'"></td>
+                                        <td class="py-2 px-4" x-text="lesson.location || '-'"></td>
+                                        <td class="py-2 px-4">
+                                            <span :class="{
+                                                'bg-blue-100 text-blue-800': lesson.lesson_status === 'Planned',
+                                                'bg-green-100 text-green-800': lesson.lesson_status === 'Completed',
+                                                'bg-red-100 text-red-800': lesson.lesson_status === 'Canceled',
+                                                'bg-yellow-100 text-yellow-800': lesson.lesson_status === 'Awaiting payment'
+                                            }" class="px-2 py-1 rounded-full text-xs" x-text="lesson.lesson_status"></span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

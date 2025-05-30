@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('package_id'); // Reference to our package types (private, duo-single, etc.)
             $table->date('booking_date');
             $table->string('booking_time'); // 'morning' or 'afternoon'
+            $table->enum('location', ['Zandvoort', 'Muiderberg', 'Wijk aan Zee', 'IJmuiden', 'Scheveningen', 'Hoek van Holland']);
             $table->integer('participants');
             $table->string('partner_name')->nullable();
             $table->text('notes')->nullable();

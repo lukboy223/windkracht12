@@ -10,32 +10,79 @@ use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-
-
         $user = auth()->user();
         $instructor = \App\Models\Instructor::where('user_id', $user->id)->first();
-        // dd($instructor);
         $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $isAdmin = $user->roles()->where('name', 'Administrator')->where('isactive', true)->exists();
         $isStudent = (bool) $student;
-
-        if ($isStudent) {
+        
+        // Start building the base query
+        if ($isAdmin) {
+            // Administrator can see all lessons
+            $query = \App\Models\Lesson::with(['instructor.user', 'registration.student.user', 'registration.booking']);
+        } elseif ($isStudent) {
+            // Show only student's lessons
             $registrationIds = \App\Models\Registration::where('student_id', $student->id)->pluck('id');
-            $lessons = \App\Models\Lesson::with(['instructor.user', 'registration.student.user'])
-                ->whereIn('registration_id', $registrationIds)
-                ->orderByDesc('start_date')
-                ->orderByDesc('start_time')
-                ->get();
+            $query = \App\Models\Lesson::with(['instructor.user', 'registration.student.user', 'registration.booking'])
+                ->whereIn('registration_id', $registrationIds);
         } else {
-            $lessons = \App\Models\Lesson::with(['instructor.user', 'registration.student.user'])
-                ->where('instructor_id', $instructor->id)
-                ->orderByDesc('start_date')
-                ->orderByDesc('start_time')
-                ->get();
+            // Show only instructor's lessons
+            $query = \App\Models\Lesson::with(['instructor.user', 'registration.student.user', 'registration.booking'])
+                ->where('instructor_id', $instructor->id);
         }
-
-        return view('lessons.index', compact('lessons', 'isStudent'));
+        
+        // Apply filters
+        // Period filter
+        if ($request->filled('period')) {
+            switch ($request->period) {
+                case 'today':
+                    $query->whereDate('start_date', now()->toDateString());
+                    break;
+                case 'this_week':
+                    $query->whereBetween('start_date', [
+                        now()->startOfWeek()->toDateString(),
+                        now()->endOfWeek()->toDateString()
+                    ]);
+                    break;
+                case 'next_week':
+                    $query->whereBetween('start_date', [
+                        now()->addWeek()->startOfWeek()->toDateString(),
+                        now()->addWeek()->endOfWeek()->toDateString()
+                    ]);
+                    break;
+                case 'this_month':
+                    $query->whereMonth('start_date', now()->month)
+                        ->whereYear('start_date', now()->year);
+                    break;
+            }
+        }
+        
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('lesson_status', $request->status);
+        }
+        
+        // Location filter (join with bookings table)
+        if ($request->filled('location')) {
+            $query->whereHas('registration.booking', function($q) use ($request) {
+                $q->where('location', $request->location);
+            });
+        }
+        
+        // Instructor filter (for admin only)
+        if ($isAdmin && $request->filled('instructor_id')) {
+            $query->where('instructor_id', $request->instructor_id);
+        }
+        
+        // Get the lessons with ordering and pagination
+        $lessons = $query->orderByDesc('start_date')
+                        ->orderByDesc('start_time')
+                        ->paginate(25)
+                        ->withQueryString();
+        
+        return view('lessons.index', compact('lessons', 'isStudent', 'isAdmin'));
     }
 
     public function cancel(Request $request, Lesson $lesson)

@@ -7,6 +7,7 @@ use App\Models\Instructor;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Contact;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -204,5 +205,50 @@ class InstructorController extends Controller
             return redirect()->route('admin.instructors.index')
                 ->with('error', 'Er is een fout opgetreden bij het verwijderen van de instructeur: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get instructor lessons filtered by period
+     */
+    public function getLessons(Instructor $instructor, Request $request)
+    {
+        $period = $request->query('period', 'all');
+        // Fix: Use with() to eager load related data and check both instructor_id and user_id
+        $query = Lesson::with(['registration.student.user'])
+            ->where(function($q) use ($instructor) {
+                $q->where('instructor_id', $instructor->id)
+                  ->orWhere('instructor_id', $instructor->user_id);
+            });
+        
+        // Filter based on period
+        switch ($period) {
+            case 'today':
+                $query->whereDate('start_date', now()->toDateString());
+                break;
+            case 'week':
+                $query->whereBetween('start_date', [
+                    now()->startOfWeek()->toDateString(),
+                    now()->endOfWeek()->toDateString()
+                ]);
+                break;
+            case 'month':
+                $query->whereMonth('start_date', now()->month)
+                      ->whereYear('start_date', now()->year);
+                break;
+        }
+        
+        $lessons = $query->orderBy('start_date')
+                         ->orderBy('start_time')
+                         ->get();
+        
+        // Debug information to help diagnose the issue
+        \Log::info('Fetched lessons for instructor', [
+            'instructor_id' => $instructor->id,
+            'user_id' => $instructor->user_id,
+            'count' => $lessons->count(),
+            'period' => $period
+        ]);
+        
+        return response()->json($lessons);
     }
 }

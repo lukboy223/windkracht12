@@ -58,6 +58,19 @@
                         </div>
                         
                         <div class="mb-4">
+                            <x-input-label for="location" :value="__('Locatie')" />
+                            <select id="location" name="location" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option value="Zandvoort" {{ old('location') == 'Zandvoort' ? 'selected' : '' }}>Zandvoort</option>
+                                <option value="Muiderberg" {{ old('location') == 'Muiderberg' ? 'selected' : '' }}>Muiderberg</option>
+                                <option value="Wijk aan Zee" {{ old('location') == 'Wijk aan Zee' ? 'selected' : '' }}>Wijk aan Zee</option>
+                                <option value="IJmuiden" {{ old('location') == 'IJmuiden' ? 'selected' : '' }}>IJmuiden</option>
+                                <option value="Scheveningen" {{ old('location') == 'Scheveningen' ? 'selected' : '' }}>Scheveningen</option>
+                                <option value="Hoek van Holland" {{ old('location') == 'Hoek van Holland' ? 'selected' : '' }}>Hoek van Holland</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('location')" class="mt-2" />
+                        </div>
+                        
+                        <div class="mb-4">
                             <x-input-label for="participants" :value="__('Aantal deelnemers')" />
                             <select id="participants" name="participants" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <option value="1" {{ old('participants') == 1 ? 'selected' : '' }}>1 persoon</option>

@@ -119,6 +119,7 @@ class DatabaseSeeder extends Seeder
                     'package_id' => $package->id,
                     'booking_date' => fake()->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
                     'booking_time' => fake()->randomElement(['morning', 'afternoon']),
+                    'location' => fake()->randomElement(['Zandvoort', 'Muiderberg', 'Wijk aan Zee', 'IJmuiden', 'Scheveningen', 'Hoek van Holland']),
                     'participants' => fake()->numberBetween(1, 2),
                     'partner_name' => fake()->boolean(30) ? fake()->name() : null,
                     'notes' => fake()->boolean(50) ? fake()->sentence() : null,
@@ -135,23 +136,57 @@ class DatabaseSeeder extends Seeder
             $booking = \App\Models\Booking::where('user_id', $student->user_id)->first();
             
             if ($booking) {
+                // Set the start date from the booking
+                $startDate = $booking->booking_date;
+                
+                // Calculate end date based on package type (allowing time for multiple lessons)
+                $endDate = null;
+                if (strpos($booking->package_id, 'duo-three') !== false) {
+                    $endDate = date('Y-m-d', strtotime($startDate . ' +6 weeks'));
+                } elseif (strpos($booking->package_id, 'duo-five') !== false) {
+                    $endDate = date('Y-m-d', strtotime($startDate . ' +10 weeks'));
+                } else {
+                    $endDate = date('Y-m-d', strtotime($startDate . ' +1 week'));
+                }
+                
                 $registration = Registration::factory()->create([
                     'student_id' => $student->id,
                     'package_id' => $booking->package_id,
                     'booking_id' => $booking->id,
-                    'start_date' => $booking->booking_date,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
                 ]);
                 
                 // Create lessons only for confirmed bookings
                 if ($booking->status === 'confirmed') {
-                    for ($j = 0; $j < 5; $j++) {
+                    // For multiple lessons packages, create appropriate number of lessons
+                    $lessonCount = 1; // Default for single lesson packages
+                    
+                    if (strpos($booking->package_id, 'duo-three') !== false) {
+                        $lessonCount = 3;
+                    } elseif (strpos($booking->package_id, 'duo-five') !== false) {
+                        $lessonCount = 5;
+                    }
+                    
+                    for ($j = 0; $j < $lessonCount; $j++) {
                         $instructor = $instructors->random();
+                        
+                        // Generate dates within the current month
+                        $now = now();
+                        $startOfMonth = $now->copy()->startOfMonth();
+                        $endOfMonth = $now->copy()->endOfMonth();
+                        
+                        // Calculate lesson dates evenly distributed through the current month
+                        $daySpan = $endOfMonth->diffInDays($startOfMonth);
+                        $dayInterval = floor($daySpan / max($lessonCount, 1));
+                        $lessonDate = $startOfMonth->copy()->addDays($j * $dayInterval)->format('Y-m-d');
+                        
                         Lesson::factory()->create([
                             'registration_id' => $registration->id,
-                            'lesson_status' => fake()->randomElement(['Planned', 'Completed', 'Canceled']),
+                            'lesson_status' => fake()->randomElement(['Planned', 'Completed', 'Canceled', 'Awaiting payment']),
                             'number_of_students' => $booking->participants,
-                            'instructor_id' => $instructor->user_id,
-                            'start_date' => fake()->dateTimeBetween($booking->booking_date, '+2 weeks')->format('Y-m-d'),
+                            'instructor_id' => $instructor->id,
+                            'start_date' => $lessonDate,
                             'start_time' => $booking->booking_time === 'morning' ? 
                                 fake()->dateTimeBetween('09:00', '12:00')->format('H:i:s') : 
                                 fake()->dateTimeBetween('13:00', '16:00')->format('H:i:s'),
@@ -163,15 +198,24 @@ class DatabaseSeeder extends Seeder
 
         // For each instructor, ensure they have at least 10 lessons (as instructor)
         foreach ($instructors as $instructor) {
-            $count = Lesson::where('instructor_id', $instructor->user_id)->count();
+            $count = Lesson::where('instructor_id', $instructor->id)->count();
             for ($j = $count; $j < 10; $j++) {
                 // Assign to a random student's registration
                 $student = $students->random();
                 $registration = Registration::where('student_id', $student->id)->first();
+                
+                // Generate a random date within the current month
+                $startOfMonth = now()->startOfMonth();
+                $endOfMonth = now()->endOfMonth();
+                $lessonDate = fake()->dateTimeBetween(
+                    $startOfMonth->format('Y-m-d'), 
+                    $endOfMonth->format('Y-m-d')
+                )->format('Y-m-d');
+                
                 Lesson::factory()->create([
                     'registration_id' => $registration->id,
-                    'instructor_id' => $instructor->user_id,
-                    'start_date' => fake()->dateTimeBetween('-1 week', '+1 week')->format('Y-m-d'),
+                    'instructor_id' => $instructor->id,
+                    'start_date' => $lessonDate,
                     'start_time' => fake()->time(),
                 ]);
             }

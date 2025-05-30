@@ -34,23 +34,25 @@ class BookingController extends Controller
     
     public function store(Request $request)
     {
+        
+        $validated = $request->validate([
+            'package_id' => 'required|string|exists:packages,id',
+            'date' => 'required|date|after:today',
+            'time' => 'required|in:morning,afternoon',
+            'location' => 'required|string|in:Zandvoort,Muiderberg,Wijk aan Zee,IJmuiden,Scheveningen,Hoek van Holland',
+            'participants' => 'required|integer|min:1|max:2',
+            'partner_name' => 'nullable|required_if:participants,2|string|max:255',
+            'notes' => 'nullable|string|max:500',
+        ]);
+        
         try {
             DB::beginTransaction();
-            
-            $validated = $request->validate([
-                'package_id' => 'required|string|exists:packages,id',
-                'date' => 'required|date|after:today',
-                'time' => 'required|in:morning,afternoon',
-                'participants' => 'required|integer|min:1|max:2',
-                'partner_name' => 'nullable|required_if:participants,2|string|max:255',
-                'notes' => 'nullable|string|max:500',
-            ]);
-
             $booking = new Booking();
             $booking->user_id = Auth::id();
             $booking->package_id = $validated['package_id'];
             $booking->booking_date = $validated['date'];
             $booking->booking_time = $validated['time'];
+            $booking->location = $validated['location']; // Store the location
             $booking->participants = $validated['participants'];
             $booking->partner_name = $validated['partner_name'] ?? null;
             $booking->notes = $validated['notes'] ?? null;
@@ -124,7 +126,7 @@ class BookingController extends Controller
             $lesson->instructor_id = $availableInstructor->id;
             $lesson->start_date = $validated['date'];
             $lesson->start_time = $validated['time'] === 'morning' ? '09:00:00' : '13:00:00';
-            $lesson->lesson_status = 'Planned';
+            $lesson->lesson_status = 'Awaiting payment'; // Set initial status
             $lesson->number_of_students = $validated['participants'];
             $lesson->save();
             
