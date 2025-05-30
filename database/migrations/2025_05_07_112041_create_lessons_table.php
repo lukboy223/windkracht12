@@ -15,13 +15,11 @@ return new class extends Migration
             $table->id(); // Id (PK)
             $table->foreignId('registration_id')->constrained()->onDelete('cascade'); // Registration ID (FK)
             $table->foreignId('instructor_id')->constrained()->onDelete('cascade'); // Instructor ID (FK)
-            $table->foreignId('car_id')->constrained()->onDelete('cascade'); // Car Id (FK)
-            $table->date('start_date'); // Start date
+             $table->date('start_date'); // Start date
             $table->time('start_time'); // Start time
-            $table->date('end_date'); // End date
-            $table->time('end_time'); // End time
-            $table->enum('lesson_status', ['Planned', 'Completed', 'Canceled']); // Lesson status
+            $table->enum('lesson_status', ['Planned', 'Completed', 'Canceled', 'Awaiting payment']); // Lesson status
             $table->text('goal')->nullable(); // Goal
+            $table->string('number_of_students'); // Number of students
             $table->text('student_comment')->nullable(); // Student Comment
             $table->text('commentary_instructor')->nullable(); // CommentaryInstructor
             $table->boolean('isactive')->default(true); // IsActive

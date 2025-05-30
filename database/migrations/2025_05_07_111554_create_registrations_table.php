@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('registrations', function (Blueprint $table) {
             $table->id(); // Id (PK)
             $table->foreignId('student_id')->constrained()->onDelete('cascade'); // Student ID (FK)
-            $table->foreignId('package_id')->constrained()->onDelete('cascade'); // PackageId (FK)
+            $table->string('package_id'); // Reference to our package types
+            $table->foreign('package_id')->references('id')->on('packages');
+            $table->foreignId('booking_id')->constrained()->onDelete('cascade'); // Booking ID (FK)
             $table->date('start_date'); // Start date
             $table->date('end_date')->nullable(); // End date
+            $table->integer('remaining_lessons')->default(1);
             $table->boolean('isactive')->default(true); // IsActive
             $table->text('remark')->nullable(); // Remark
             $table->timestamps();
